@@ -15,6 +15,11 @@ manifests itself to clients as stale views of data.
 
 ## Observed consistency
 
+We ran a test in which we wrote (i.e., create, update, delete) an object and
+then attempted to read the object. Across many trials, we count the number of
+times the object was not immediately available. When the object is not
+immediately found, it's an occurrence of observed eventual consistency. 
+
 Observed instances of eventual consistency with a number of operations during
 tests around 17 December 2014:
 
