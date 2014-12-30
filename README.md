@@ -21,7 +21,7 @@ times the object was not immediately available. When the object is not
 immediately found, it's an occurrence of observed eventual consistency. 
 
 Observed instances of eventual consistency with a number of operations during
-tests around 17 December 2014:
+tests around 17 December 2014 with a 1-byte object size:
 
 | Provider | read after create | read after delete | read after overwrite | list after create | list after delete | number of operations |
 | --- | :---: | :---: | :---: | :---: | :---: | :---: |

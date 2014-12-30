@@ -49,20 +49,24 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
 public final class AreWeConsistentYet {
-    private static final ByteSource payload1 = ByteSource.wrap(new byte[] {1});
-    private static final ByteSource payload2 = ByteSource.wrap(new byte[] {2});
+    private final ByteSource payload1;
+    private final ByteSource payload2;
     private final BlobStore blobStore;
     private final String containerName;
     private final int iterations;
     private final Random random = new Random();
 
     public AreWeConsistentYet(BlobStore blobStore, String containerName,
-            int iterations) {
+            int iterations, long objectSize) {
         this.blobStore = Preconditions.checkNotNull(blobStore);
         this.containerName = Preconditions.checkNotNull(containerName);
         Preconditions.checkArgument(iterations > 0,
                 "iterations must be greater than zero, was: " + iterations);
         this.iterations = iterations;
+        Preconditions.checkArgument(objectSize >= 0,
+                "object size must be at least zero, was: " + objectSize);
+        payload1 = Utils.infiniteByteSource((byte) 1).slice(0, objectSize);
+        payload2 = Utils.infiniteByteSource((byte) 2).slice(0, objectSize);
     }
 
     public int readAfterCreate() throws IOException {
@@ -189,6 +193,9 @@ public final class AreWeConsistentYet {
         @Option(name = "--location", usage = "container location")
         private String location;
 
+        @Option(name = "--size", usage = "object size in bytes (default: 1)")
+        private long objectSize = 1;
+
         @Option(name = "--properties", usage = "configuration file",
                 required = true)
         private File propertiesFile;
@@ -254,7 +261,8 @@ public final class AreWeConsistentYet {
             blobStore.createContainerInLocation(location,
                     options.containerName);
             AreWeConsistentYet test = new AreWeConsistentYet(
-                    blobStore, options.containerName, options.iterations);
+                    blobStore, options.containerName, options.iterations,
+                    options.objectSize);
             PrintStream out = System.out;
             out.println("eventual consistency count with " +
                     options.iterations + " iterations: ");
