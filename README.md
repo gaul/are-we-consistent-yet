@@ -25,17 +25,19 @@ tests around 17 December 2014 with a 1-byte object size:
 
 | Provider | read after create | read after delete | read after overwrite | list after create | list after delete | number of operations |
 | --- | :---: | :---: | :---: | :---: | :---: | :---: |
-| Amazon S3 (us-standard)     | * |  * | * | 16 |  * | 100,000 |
-| Amazon S3 (us-west)         | - |  1 | 1 |  * |  * | 100,000 |
-| Ceph (DreamObjects)         | - |  - | - |  - |  - |   1,000 |
-| Google Cloud Storage        | - |  - | - |  2 |  2 |   1,000 |
-| Microsoft Azure Storage     | - |  - | - |  - |  - |   1,000 |
-| OpenStack Swift (Rackspace) | - | 17 | 3 | 30 | 20 |   1,000 |
+| Amazon S3 (us-standard)         |  * |  * |  * | 16 |  * | 100,000 |
+| Amazon S3 (us-standard&dagger;) | 16 |  8 | 12 |  8 |  3 |   1,000 |
+| Amazon S3 (us-west)             |  - |  1 |  1 |  * |  * | 100,000 |
+| Ceph (DreamObjects)             |  - |  - |  - |  - |  - |   1,000 |
+| Google Cloud Storage            |  - |  - |  - |  2 |  2 |   1,000 |
+| Microsoft Azure Storage         |  - |  - |  - |  - |  - |   1,000 |
+| OpenStack Swift (Rackspace)     |  - | 17 |  3 | 30 | 20 |   1,000 |
 
 Legend:
 
 * - zero observed instances
 * * zero observed instances but expect non-zero
+* &dagger; writing to N. Virginia and reading from Pacific Northwest
 
 ## Documented consistency
 

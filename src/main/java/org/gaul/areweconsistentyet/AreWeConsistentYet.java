@@ -52,13 +52,16 @@ public final class AreWeConsistentYet {
     private final ByteSource payload1;
     private final ByteSource payload2;
     private final BlobStore blobStore;
+    private final BlobStore blobStoreRead;
     private final String containerName;
     private final int iterations;
     private final Random random = new Random();
 
-    public AreWeConsistentYet(BlobStore blobStore, String containerName,
-            int iterations, long objectSize) {
+    public AreWeConsistentYet(BlobStore blobStore,
+            BlobStore blobStoreRead, String containerName, int iterations,
+            long objectSize) {
         this.blobStore = Preconditions.checkNotNull(blobStore);
+        this.blobStoreRead = Preconditions.checkNotNull(blobStoreRead);
         this.containerName = Preconditions.checkNotNull(containerName);
         Preconditions.checkArgument(iterations > 0,
                 "iterations must be greater than zero, was: " + iterations);
@@ -74,7 +77,7 @@ public final class AreWeConsistentYet {
         for (int i = 0; i < iterations; ++i) {
             String blobName = makeBlobName();
             blobStore.putBlob(containerName, makeBlob(blobName, payload1));
-            Blob getBlob = blobStore.getBlob(containerName, blobName);
+            Blob getBlob = blobStoreRead.getBlob(containerName, blobName);
             if (getBlob == null) {
                 ++count;
             } else {
@@ -94,7 +97,7 @@ public final class AreWeConsistentYet {
             String blobName = makeBlobName();
             blobStore.putBlob(containerName, makeBlob(blobName, payload1));
             blobStore.removeBlob(containerName, blobName);
-            Blob getBlob = blobStore.getBlob(containerName, blobName);
+            Blob getBlob = blobStoreRead.getBlob(containerName, blobName);
             if (getBlob != null) {
                 ++count;
                 try (Payload payload = getBlob.getPayload();
@@ -112,7 +115,7 @@ public final class AreWeConsistentYet {
             String blobName = makeBlobName();
             blobStore.putBlob(containerName, makeBlob(blobName, payload1));
             blobStore.putBlob(containerName, makeBlob(blobName, payload2));
-            Blob getBlob = blobStore.getBlob(containerName, blobName);
+            Blob getBlob = blobStoreRead.getBlob(containerName, blobName);
             try (Payload payload = getBlob.getPayload();
                  InputStream is = payload.openStream()) {
                 if (Arrays.equals(payload1.read(), ByteStreams.toByteArray(
@@ -167,7 +170,7 @@ public final class AreWeConsistentYet {
         Set<String> blobNames = new HashSet<String>();
         ListContainerOptions options = new ListContainerOptions();
         while (true) {
-            PageSet<? extends StorageMetadata> set = blobStore.list(
+            PageSet<? extends StorageMetadata> set = blobStoreRead.list(
                     containerName, options);
             for (StorageMetadata sm : set) {
                 blobNames.add(sm.getName());
@@ -199,6 +202,10 @@ public final class AreWeConsistentYet {
         @Option(name = "--properties", usage = "configuration file",
                 required = true)
         private File propertiesFile;
+
+        @Option(name = "--reader-endpoint",
+                usage = "separate endpoint to read from")
+        private String readerEndpoint;
     }
 
     public static void main(String[] args) throws Exception {
@@ -221,7 +228,51 @@ public final class AreWeConsistentYet {
         try (InputStream is = new FileInputStream(options.propertiesFile)) {
             properties.load(is);
         }
+        Properties propertiesRead = (Properties) properties.clone();
+        if (options.readerEndpoint != null) {
+            propertiesRead.setProperty(Constants.PROPERTY_ENDPOINT,
+                    options.readerEndpoint);
+        }
 
+        try (BlobStoreContext context = blobStoreContextFromProperties(
+                     properties);
+             BlobStoreContext contextRead = blobStoreContextFromProperties(
+                     propertiesRead)) {
+            BlobStore blobStore = context.getBlobStore();
+            BlobStore blobStoreRead = contextRead.getBlobStore();
+
+            Location location = null;
+            if (options.location != null) {
+                for (Location loc : blobStore.listAssignableLocations()) {
+                    if (loc.getId().equalsIgnoreCase(options.location)) {
+                        location = loc;
+                        break;
+                    }
+                }
+                if (location == null) {
+                    throw new Exception("Could not find location: " +
+                            options.location);
+                }
+            }
+            blobStore.createContainerInLocation(location,
+                    options.containerName);
+            AreWeConsistentYet test = new AreWeConsistentYet(
+                    blobStore, blobStoreRead, options.containerName,
+                    options.iterations, options.objectSize);
+            PrintStream out = System.out;
+            out.println("eventual consistency count with " +
+                    options.iterations + " iterations: ");
+            out.println("read after create: " + test.readAfterCreate());
+            out.println("read after delete: " + test.readAfterDelete());
+            out.println("read after overwrite: " + test.readAfterOverwrite());
+            out.println("list after create: " + test.listAfterCreate());
+            out.println("list after delete: " + test.listAfterDelete());
+            blobStore.deleteContainer(options.containerName);
+        }
+    }
+
+    private static BlobStoreContext blobStoreContextFromProperties(
+            Properties properties) {
         String provider = properties.getProperty(Constants.PROPERTY_PROVIDER);
         String identity = properties.getProperty(Constants.PROPERTY_IDENTITY);
         String credential = properties.getProperty(
@@ -243,35 +294,6 @@ public final class AreWeConsistentYet {
         if (endpoint != null) {
             builder = builder.endpoint(endpoint);
         }
-        try (BlobStoreContext context = builder.build(BlobStoreContext.class)) {
-            BlobStore blobStore = context.getBlobStore();
-            Location location = null;
-            if (options.location != null) {
-                for (Location loc : blobStore.listAssignableLocations()) {
-                    if (loc.getId().equalsIgnoreCase(options.location)) {
-                        location = loc;
-                        break;
-                    }
-                }
-                if (location == null) {
-                    throw new Exception("Could not find location: " +
-                            options.location);
-                }
-            }
-            blobStore.createContainerInLocation(location,
-                    options.containerName);
-            AreWeConsistentYet test = new AreWeConsistentYet(
-                    blobStore, options.containerName, options.iterations,
-                    options.objectSize);
-            PrintStream out = System.out;
-            out.println("eventual consistency count with " +
-                    options.iterations + " iterations: ");
-            out.println("read after create: " + test.readAfterCreate());
-            out.println("read after delete: " + test.readAfterDelete());
-            out.println("read after overwrite: " + test.readAfterOverwrite());
-            out.println("list after create: " + test.listAfterCreate());
-            out.println("list after delete: " + test.listAfterDelete());
-            blobStore.deleteContainer(options.containerName);
-        }
+        return builder.build(BlobStoreContext.class);
     }
 }
