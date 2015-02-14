@@ -116,6 +116,10 @@ public final class AreWeConsistentYet {
             blobStore.putBlob(containerName, makeBlob(blobName, payload1));
             blobStore.putBlob(containerName, makeBlob(blobName, payload2));
             Blob getBlob = blobStoreRead.getBlob(containerName, blobName);
+            if (getBlob == null) {
+                ++count;
+                continue;
+            }
             try (Payload payload = getBlob.getPayload();
                  InputStream is = payload.openStream()) {
                 if (Arrays.equals(payload1.read(), ByteStreams.toByteArray(
