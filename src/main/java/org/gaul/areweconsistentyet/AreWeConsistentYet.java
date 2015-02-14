@@ -66,8 +66,8 @@ public final class AreWeConsistentYet {
         Preconditions.checkArgument(iterations > 0,
                 "iterations must be greater than zero, was: " + iterations);
         this.iterations = iterations;
-        Preconditions.checkArgument(objectSize >= 0,
-                "object size must be at least zero, was: " + objectSize);
+        Preconditions.checkArgument(objectSize > 0,
+                "object size must be greater than zero, was: " + objectSize);
         payload1 = Utils.infiniteByteSource((byte) 1).slice(0, objectSize);
         payload2 = Utils.infiniteByteSource((byte) 2).slice(0, objectSize);
     }
