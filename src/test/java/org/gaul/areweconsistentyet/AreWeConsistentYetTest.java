@@ -29,7 +29,6 @@ import org.jclouds.domain.Location;
 import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public final class AreWeConsistentYetTest {
@@ -78,8 +77,6 @@ public final class AreWeConsistentYetTest {
         assertThat(awcyEventual.readAfterCreate()).isEqualTo(ITERATIONS);
     }
 
-    // TODO: how to model this?
-    @Ignore
     @Test
     public void testReadAfterDelete() throws Exception {
         assertThat(awcyStrong.readAfterDelete()).isEqualTo(0);
@@ -98,8 +95,6 @@ public final class AreWeConsistentYetTest {
         assertThat(awcyEventual.listAfterCreate()).isEqualTo(ITERATIONS);
     }
 
-    // TODO: how to model this?
-    @Ignore
     @Test
     public void testListAfterDelete() throws Exception {
         assertThat(awcyStrong.listAfterDelete()).isEqualTo(0);

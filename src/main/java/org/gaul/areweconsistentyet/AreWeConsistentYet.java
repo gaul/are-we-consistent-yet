@@ -95,7 +95,7 @@ public final class AreWeConsistentYet {
         int count = 0;
         for (int i = 0; i < iterations; ++i) {
             String blobName = makeBlobName();
-            blobStore.putBlob(containerName, makeBlob(blobName, payload1));
+            blobStoreRead.putBlob(containerName, makeBlob(blobName, payload1));
             blobStore.removeBlob(containerName, blobName);
             Blob getBlob = blobStoreRead.getBlob(containerName, blobName);
             if (getBlob != null) {
@@ -149,7 +149,7 @@ public final class AreWeConsistentYet {
         int count = 0;
         for (int i = 0; i < iterations; ++i) {
             String blobName = makeBlobName();
-            blobStore.putBlob(containerName, makeBlob(blobName, payload1));
+            blobStoreRead.putBlob(containerName, makeBlob(blobName, payload1));
             blobStore.removeBlob(containerName, blobName);
             if (listAllBlobs().contains(blobName)) {
                 ++count;
