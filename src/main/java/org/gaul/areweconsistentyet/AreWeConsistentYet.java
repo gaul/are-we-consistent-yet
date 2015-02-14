@@ -188,13 +188,14 @@ public final class AreWeConsistentYet {
         return blobNames;
     }
 
-    static final class AreWeConsistentYetOptions {
+    static final class Options {
         @Option(name = "--container-name",
                 usage = "container name for tests, will be created and removed",
                 required = true)
-        private String containerName = "container-name";
+        private String containerName;
 
-        @Option(name = "--iterations", usage = "number of iterations")
+        @Option(name = "--iterations",
+                usage = "number of iterations (default: 1)")
         private int iterations = 1;
 
         @Option(name = "--location", usage = "container location")
@@ -213,7 +214,7 @@ public final class AreWeConsistentYet {
     }
 
     public static void main(String[] args) throws Exception {
-        AreWeConsistentYetOptions options = new AreWeConsistentYetOptions();
+        Options options = new Options();
         CmdLineParser parser = new CmdLineParser(options);
         try {
             parser.parseArgument(args);
