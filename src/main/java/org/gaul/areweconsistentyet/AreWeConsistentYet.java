@@ -16,6 +16,10 @@
 
 package org.gaul.areweconsistentyet;
 
+import static java.util.Objects.requireNonNull;
+
+import static com.google.common.base.Preconditions.checkArgument;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,7 +31,6 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteSource;
 import com.google.common.io.ByteStreams;
@@ -60,13 +63,13 @@ public final class AreWeConsistentYet {
     public AreWeConsistentYet(BlobStore blobStore,
             BlobStore blobStoreRead, String containerName, int iterations,
             long objectSize) {
-        this.blobStore = Preconditions.checkNotNull(blobStore);
-        this.blobStoreRead = Preconditions.checkNotNull(blobStoreRead);
-        this.containerName = Preconditions.checkNotNull(containerName);
-        Preconditions.checkArgument(iterations > 0,
+        this.blobStore = requireNonNull(blobStore);
+        this.blobStoreRead = requireNonNull(blobStoreRead);
+        this.containerName = requireNonNull(containerName);
+        checkArgument(iterations > 0,
                 "iterations must be greater than zero, was: " + iterations);
         this.iterations = iterations;
-        Preconditions.checkArgument(objectSize > 0,
+        checkArgument(objectSize > 0,
                 "object size must be greater than zero, was: " + objectSize);
         payload1 = Utils.infiniteByteSource((byte) 1).slice(0, objectSize);
         payload2 = Utils.infiniteByteSource((byte) 2).slice(0, objectSize);
