@@ -158,7 +158,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <jclouds.version>1.8.1</jclouds.version>
+    <jclouds.version>1.9.0</jclouds.version>
   </properties>
 
   <prerequisites>
