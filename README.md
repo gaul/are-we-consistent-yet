@@ -54,4 +54,5 @@ Legend:
 Consistent Datastores](http://www.aifb.kit.edu/images/4/44/Ic2e2013consistency.pdf)
 * [Benchmarking Eventual Consistency: Lessons Learned from Long-Term Experimental Studies](http://www.aifb.kit.edu/images/8/8d/Ic2e2014.pdf)
 * [Eventual Consistency: How soon is eventual?](http://www.researchgate.net/publication/259541556_Eventual_Consistency_How_soon_is_eventual_An_Evaluation_of_Amazon_S3%27s_Consistency_Behavior/links/0deec52c6e04b49921000000)
+* [Eventual Consistency Today: Limitations, Extensions, and Beyond](https://queue.acm.org/detail.cfm?id=2462076)
 * [Probabilistically Bounded Staleness](http://pbs.cs.berkeley.edu/) - includes discussion of Riak and Cassandra
