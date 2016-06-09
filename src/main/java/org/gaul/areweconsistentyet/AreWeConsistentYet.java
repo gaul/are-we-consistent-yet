@@ -162,7 +162,7 @@ public final class AreWeConsistentYet {
     }
 
     private String makeBlobName() {
-        return "blob-name-" + random.nextInt();
+        return "blob-name-" + random.nextInt(Integer.MAX_VALUE);
     }
 
     private Blob makeBlob(String blobName, ByteSource payload)
