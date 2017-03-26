@@ -35,8 +35,8 @@ tests around 17 December 2014 with a 1-byte object size:
 
 Legend:
 
-* - zero observed instances
-* * zero observed instances but expect non-zero
+* `-` zero observed instances
+* `*` zero observed instances but expect non-zero
 * &dagger; writing to N. Virginia and reading from Pacific Northwest
 
 ## Documented consistency
